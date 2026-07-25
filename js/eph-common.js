@@ -220,6 +220,13 @@ function setupLandingForm() {
   });
 
 btnMulai.addEventListener('click', function() {
+	if (dropdown.value !== 'custom') {
+    inputTxt.value = dropdown.value;
+  }
+  
+  let finalValue = inputTxt.value.trim();
+  if (finalValue === '' || finalValue === 'wd:') {
+	  
     let finalValue = inputTxt.value.trim();
     if (finalValue === '' || finalValue === 'wd:') {
       alert('Anda belum memasukkan parameter Q-ID');
@@ -1274,8 +1281,8 @@ window.addEventListener('load', function() {
     <div id="eph-lightbox">
       <div class="lightbox-backdrop"></div>
       <div class="lightbox-content" style="display: flex; flex-direction: column; align-items: center;">
-        <img id="lightbox-img" src="" alt="Gambar Diperbesar" style="max-width: 100%; max-height: 80vh; object-fit: contain;">
-        <a id="lightbox-link" href="#" target="_blank" style="margin-top: 5px; color: #7b0d0c; text-decoration: none; font-size:12.5px;">Lihat di Wikimedia Commons</a>
+<img id="lightbox-img" src="" alt="Gambar Diperbesar" style="max-width: 100%; max-height: 80dvh; width: auto; height: auto; display: block;">
+<a id="lightbox-link" href="#" target="_blank" style="margin-top: 5px; color: #7b0d0c; text-decoration: none; font-size:12.5px;">Lihat di Wikimedia Commons</a>
       </div>
     </div>
   `;
@@ -1386,3 +1393,16 @@ window.filterNegaraByBenua = function() {
     }
   });
 };
+
+// +++ TAMBAHAN: Bangunkan UI saat tab aktif kembali dari background +++
+window.addEventListener('pageshow', function(e) {
+  let dropdown = document.getElementById('jenis-dropdown');
+  let inputTxt = document.getElementById('jenis-input');
+  
+  if (dropdown && inputTxt && dropdown.value !== 'custom') {
+    inputTxt.value = dropdown.value;
+  }
+  
+  // Sinkronkan juga kotak wilayah agar visualnya tidak tertipu
+  if (typeof aturTampilanWilayah === 'function') aturTampilanWilayah();
+});
