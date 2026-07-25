@@ -440,14 +440,27 @@ async function populateImageAndWikipediaData() {
       if (btnImg) btnImg.classList.remove('disabled');
       if (btnArt) btnArt.classList.remove('disabled');
 
-      Object.values(Records).forEach(r => {
-        if (r.id !== currentDisplayedQid) {
-          r.panelElem = undefined;
-        }
-      });
-      if (activeFeatures.has('image') || activeFeatures.has('article')) {
-        applyIntersectionFilter(true); 
-      }
+// +++ KUNCI PERBAIKAN: Refresh Panel Aktif & Matikan Auto-Render Peta +++
+Object.values(Records).forEach(r => {
+  if (r.id !== currentDisplayedQid) {
+    r.panelElem = undefined; 
+  } else {
+    // Jika panel ini sedang terbuka, dan tiba-tiba mendapat gambar/artikel baru
+    if ((r.imageFilename && !r.panelElem.querySelector('.gambar-utama')) || 
+        (r.articleTitle && r.panelElem.querySelector('.article.nodata'))) {
+      
+      r.panelElem = undefined; // Hancurkan HTML lama
+      
+      // Render ulang secara instan
+      let activeQid = currentDisplayedQid;
+      currentDisplayedQid = null; 
+      displayRecordDetails(activeQid); 
+    }
+  }
+});
+
+// Catatan: applyIntersectionFilter(true) ditiadakan dari sini agar Leaflet tidak macet.
+// Peta HANYA akan diperbarui jika pengguna menekan tombol filter secara manual.
 
     } else {
       // Tombol baru diaktifkan setelah SEMUA data gambar/artikel selesai ditarik
@@ -471,14 +484,27 @@ async function populateImageAndWikipediaData() {
         if (btnImg) btnImg.textContent = `Gambar (${persentase}%)`;
         if (btnArt) btnArt.textContent = `Artikel (${persentase}%)`;
 
-        Object.values(Records).forEach(r => {
-          if (r.id !== currentDisplayedQid) {
-            r.panelElem = undefined;
-          }
-        });
-        if (activeFeatures.has('image') || activeFeatures.has('article')) {
-          applyIntersectionFilter(true); 
-        }
+// +++ KUNCI PERBAIKAN: Refresh Panel Aktif & Matikan Auto-Render Peta +++
+Object.values(Records).forEach(r => {
+  if (r.id !== currentDisplayedQid) {
+    r.panelElem = undefined; 
+  } else {
+    // Jika panel ini sedang terbuka, dan tiba-tiba mendapat gambar/artikel baru
+    if ((r.imageFilename && !r.panelElem.querySelector('.gambar-utama')) || 
+        (r.articleTitle && r.panelElem.querySelector('.article.nodata'))) {
+      
+      r.panelElem = undefined; // Hancurkan HTML lama
+      
+      // Render ulang secara instan
+      let activeQid = currentDisplayedQid;
+      currentDisplayedQid = null; 
+      displayRecordDetails(activeQid); 
+    }
+  }
+});
+
+// Catatan: applyIntersectionFilter(true) ditiadakan dari sini agar Leaflet tidak macet.
+// Peta HANYA akan diperbarui jika pengguna menekan tombol filter secara manual.
       }
       
       // +++ DIPINDAHKAN KE SINI +++
