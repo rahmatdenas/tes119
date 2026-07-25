@@ -360,21 +360,6 @@ function resetApp() {
 
 	
 	
-// --- KUNCI PERBAIKAN: RESET SELECT WILAYAH & KATEGORI ---
-  let kategoriWilayah = document.getElementById('kategori-wilayah-utama');
-  if (kategoriWilayah) {
-    kategoriWilayah.value = 'provinsi';
-    if (typeof aturTampilanWilayah === 'function') aturTampilanWilayah();
-  }
-  
-  let provinsiInput = document.getElementById('provinsi-input');
-  if (provinsiInput) provinsiInput.value = 'wd:Q1823'; // Kembalikan ke Aceh
-
-  let benuaInput = document.getElementById('benua-input');
-  if (benuaInput) {
-    benuaInput.value = 'eropa';
-    if (typeof filterNegaraByBenua === 'function') filterNegaraByBenua();
-  }
 
 }
 
@@ -724,13 +709,14 @@ if (logoBranding) {
   if (fragment === '' && (PrimaryDataIsLoaded || isFetching)) {
     
     // Panggil dialog kustom kita
-    tampilkanDialog("Kembali ke beranda akan menghapus data yang sedang/sudah dimuat. Anda yakin ingin mereset pencarian?", "confirm", "Kembali ke Beranda")
+ tampilkanDialog("Kembali ke beranda akan menghapus data yang sedang/sudah dimuat. Anda yakin ingin mereset pencarian?", "confirm", "Kembali ke Beranda")
       .then(yakin => {
         if (yakin) {
           // JIKA YA: Bersihkan semua dan kembali ke Beranda murni
           lastValidHash = 'landing';
           history.replaceState(null, null, window.location.pathname);
           resetApp();
+          resetFormWilayah(); // <--- TAMBAHKAN BARIS INI DI SINI
           document.title = 'Mulai – ' + BASE_TITLE;
           displayPanelContent('landing');
           updateNavigationUI(''); 
@@ -1405,3 +1391,21 @@ window.addEventListener('pageshow', function(e) {
   // Sinkronkan juga kotak wilayah agar visualnya tidak tertipu
   if (typeof aturTampilanWilayah === 'function') aturTampilanWilayah();
 });
+
+// Taruh di bagian bawah file
+function resetFormWilayah() {
+  let kategoriWilayah = document.getElementById('kategori-wilayah-utama');
+  if (kategoriWilayah) {
+    kategoriWilayah.value = 'provinsi';
+    if (typeof aturTampilanWilayah === 'function') aturTampilanWilayah();
+  }
+  
+  let provinsiInput = document.getElementById('provinsi-input');
+  if (provinsiInput) provinsiInput.value = 'wd:Q1823';
+
+  let benuaInput = document.getElementById('benua-input');
+  if (benuaInput) {
+    benuaInput.value = 'eropa';
+    if (typeof filterNegaraByBenua === 'function') filterNegaraByBenua();
+  }
+}
