@@ -407,9 +407,24 @@ async function populateImageAndWikipediaData() {
       
       if (!record) return; 
 
-      if ('image' in result) {
-        record.imageFilename = extractImageFilename(result.image);
+ if ('image' in result) {
+      record.imageFilename = extractImageFilename(result.image);
+      
+      // +++ KODE INJEKSI POPUP REAL-TIME +++
+      // Jika pengguna sedang membuka popup marker ini saat gambarnya baru saja tiba
+      if (record.popup && record.popup.isOpen() && !record.popup._hasImage) {
+        let encodedFilename = encodeURIComponent(record.imageFilename);
+        let imgUrl = `${COMMONS_WIKI_URL_PREF}Special:FilePath/${encodedFilename}?width=250`;
+        let imgHtml = `
+          <div style="text-align:center; margin-top:17px;margin-bottom: 5px;">
+            <img src="${imgUrl}" draggable="false" style="width:100%; min-width:90px; height:130px; object-fit:cover; border-radius:4px;" onload="let p = Records['${cleanQid}'].popup; if (p) p.update();">
+          </div>
+        `;
+        record.popup.setContent(imgHtml + `${record.title}`);
+        record.popup._hasImage = true;
       }
+      // ++++++++++++++++++++++++++++++++++++
+    }
 
       if ('wikipediaUrlTitle' in result) {
         let rawArt = result.wikipediaUrlTitle.value;
@@ -429,41 +444,25 @@ async function populateImageAndWikipediaData() {
     }
   };
 
-  try {
+try {
     if (totalData <= 20000) {
       let daftarJanji = kelompokCicilan.map(cicilan => tarikSatuKloter(cicilan));
       let hasilKloter = await Promise.allSettled(daftarJanji);
       
       evaluasiHasilKloter(hasilKloter);
       if (signal && signal.aborted) throw 'ABORTED';
-      // Tombol baru diaktifkan setelah SEMUA data gambar/artikel selesai ditarik
+      
       if (btnImg) btnImg.classList.remove('disabled');
       if (btnArt) btnArt.classList.remove('disabled');
 
-// +++ KUNCI PERBAIKAN: Refresh Panel Aktif & Matikan Auto-Render Peta +++
-Object.values(Records).forEach(r => {
-  if (r.id !== currentDisplayedQid) {
-    r.panelElem = undefined; 
-  } else {
-    // Jika panel ini sedang terbuka, dan tiba-tiba mendapat gambar/artikel baru
-    if ((r.imageFilename && !r.panelElem.querySelector('.gambar-utama')) || 
-        (r.articleTitle && r.panelElem.querySelector('.article.nodata'))) {
-      
-      r.panelElem = undefined; // Hancurkan HTML lama
-      
-      // Render ulang secara instan
-      let activeQid = currentDisplayedQid;
-      currentDisplayedQid = null; 
-      displayRecordDetails(activeQid); 
-    }
-  }
-});
-
-// Catatan: applyIntersectionFilter(true) ditiadakan dari sini agar Leaflet tidak macet.
-// Peta HANYA akan diperbarui jika pengguna menekan tombol filter secara manual.
+      // +++ REFRESH PETA FINAL (Di luar loop) +++
+      if (activeFeatures.has('image') || activeFeatures.has('article')) {
+        applyIntersectionFilter(true); 
+      }
+      // ++++++++++++++++++++++++++++++++++++++++
 
     } else {
-      // Tombol baru diaktifkan setelah SEMUA data gambar/artikel selesai ditarik
+      // Blok kode jika data > 20000
       if (btnImg) btnImg.classList.remove('disabled');
       if (btnArt) btnArt.classList.remove('disabled');
       let batchSize = 3; 
@@ -483,39 +482,19 @@ Object.values(Records).forEach(r => {
         
         if (btnImg) btnImg.textContent = `Gambar (${persentase}%)`;
         if (btnArt) btnArt.textContent = `Artikel (${persentase}%)`;
-
-// +++ KUNCI PERBAIKAN: Refresh Panel Aktif & Matikan Auto-Render Peta +++
-Object.values(Records).forEach(r => {
-  if (r.id !== currentDisplayedQid) {
-    r.panelElem = undefined; 
-  } else {
-    // Jika panel ini sedang terbuka, dan tiba-tiba mendapat gambar/artikel baru
-    if ((r.imageFilename && !r.panelElem.querySelector('.gambar-utama')) || 
-        (r.articleTitle && r.panelElem.querySelector('.article.nodata'))) {
-      
-      r.panelElem = undefined; // Hancurkan HTML lama
-      
-      // Render ulang secara instan
-      let activeQid = currentDisplayedQid;
-      currentDisplayedQid = null; 
-      displayRecordDetails(activeQid); 
-    }
-  }
-});
-
-// Catatan: applyIntersectionFilter(true) ditiadakan dari sini agar Leaflet tidak macet.
-// Peta HANYA akan diperbarui jika pengguna menekan tombol filter secara manual.
       }
       
-      // +++ DIPINDAHKAN KE SINI +++
-      // Hanya mengembalikan teks tombol setelah perulangan persentase untuk data > 20.000 selesai
-      // Catatan: Jika tombol Anda memiliki ikon HTML (misalnya <i>), Anda bisa mengganti
-      // .textContent di bawah menjadi .innerHTML = '<i class="..."></i> Memiliki Gambar'
       if (btnImg) btnImg.textContent = 'Memiliki Gambar';
       if (btnArt) btnArt.textContent = 'Memiliki Artikel';
-      // +++++++++++++++++++++++++++
+
+      // +++ REFRESH PETA FINAL (Di luar loop) +++
+      if (activeFeatures.has('image') || activeFeatures.has('article')) {
+        applyIntersectionFilter(true); 
+      }
+      // ++++++++++++++++++++++++++++++++++++++++
     }
   } catch (error) {
+  isFetching = false;
     if (error === 'ABORTED' || (error && error.name === 'AbortError')) {
       console.log('Penarikan gambar/artikel dihentikan dengan rapi (AbortController).');
     } else {
