@@ -1365,18 +1365,35 @@ window.filterNegaraByBenua = function() {
   let negaraSelect = document.getElementById('negara-input');
   let options = negaraSelect.querySelectorAll('option[data-benua]');
 
-  let firstVisible = false;
+  // 1. Simpan negara yang saat ini ada di memori browser
+  let negaraTersimpan = negaraSelect.value;
+  let isNegaraTersimpanValid = false;
+  let nilaiNegaraPertama = null;
+
   options.forEach(opt => {
     if (opt.getAttribute('data-benua') === benua) {
       opt.style.display = ''; // Munculkan
-      if (!firstVisible) {
-        negaraSelect.value = opt.value; // Jadikan default opsi pertama yang muncul
-        firstVisible = true;
+      
+      // Catat opsi pertama yang muncul sebagai cadangan
+      if (!nilaiNegaraPertama) nilaiNegaraPertama = opt.value; 
+      
+      // Cek apakah memori negara sebelumnya memang ada di benua yang sedang aktif
+      if (opt.value === negaraTersimpan) {
+        isNegaraTersimpanValid = true; 
       }
     } else {
       opt.style.display = 'none'; // Sembunyikan
     }
   });
+
+  // 2. Putuskan apakah harus dipertahankan atau direset
+  // Reset HANYA jika memori sebelumnya kosong atau berada di benua yang berbeda
+  if (!isNegaraTersimpanValid && nilaiNegaraPertama) {
+    negaraSelect.value = nilaiNegaraPertama; 
+  } else {
+    // Kembalikan ke pilihan terakhir pengguna!
+    negaraSelect.value = negaraTersimpan;
+  }
 };
 
 // +++ TAMBAHAN: Bangunkan UI saat tab aktif kembali dari background +++
