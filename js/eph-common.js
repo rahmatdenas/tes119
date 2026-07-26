@@ -1365,26 +1365,19 @@ window.filterNegaraByBenua = function() {
   let negaraSelect = document.getElementById('negara-input');
   let options = negaraSelect.querySelectorAll('option[data-benua]');
 
-  // 1. Simpan negara yang saat ini ada di memori browser
-  let negaraTersimpan = negaraSelect.value;
-  let isNegaraTersimpanValid = false;
-  let nilaiNegaraPertama = null;
-
+  let firstVisible = false;
   options.forEach(opt => {
     if (opt.getAttribute('data-benua') === benua) {
       opt.style.display = ''; // Munculkan
-      
-      // Catat opsi pertama yang muncul sebagai cadangan
-      if (!nilaiNegaraPertama) nilaiNegaraPertama = opt.value; 
-      
-      // Cek apakah memori negara sebelumnya memang ada di benua yang sedang aktif
-      if (opt.value === negaraTersimpan) {
-        isNegaraTersimpanValid = true; 
+      if (!firstVisible) {
+        negaraSelect.value = opt.value; // Jadikan default opsi pertama yang muncul
+        firstVisible = true;
       }
     } else {
       opt.style.display = 'none'; // Sembunyikan
     }
   });
+};
 
   // 2. Putuskan apakah harus dipertahankan atau direset
   // Reset HANYA jika memori sebelumnya kosong atau berada di benua yang berbeda
