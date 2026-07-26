@@ -1379,16 +1379,6 @@ window.filterNegaraByBenua = function() {
   });
 };
 
-  // 2. Putuskan apakah harus dipertahankan atau direset
-  // Reset HANYA jika memori sebelumnya kosong atau berada di benua yang berbeda
-  if (!isNegaraTersimpanValid && nilaiNegaraPertama) {
-    negaraSelect.value = nilaiNegaraPertama; 
-  } else {
-    // Kembalikan ke pilihan terakhir pengguna!
-    negaraSelect.value = negaraTersimpan;
-  }
-};
-
 // +++ TAMBAHAN: Bangunkan UI saat tab aktif kembali dari background +++
 window.addEventListener('pageshow', function(e) {
   let dropdown = document.getElementById('jenis-dropdown');
