@@ -840,20 +840,25 @@ function activateMapMarker(qid) {
           }, 4500);
         }
       }, 350);
-    } else {
-      Cluster.zoomToShowLayer(
-        record.mapMarker,
-        function() {
-          if (window.location.hash !== '#' + qid) return;
-          if (!record.popup.isOpen()) record.mapMarker.openPopup();
-        }
-      );
+ } else {
+      // +++ KUNCI ANTI-CRASH: Validasi Hierarki Memori +++ Ditambahkan pada 26 Juli 2026
+      if (Cluster.hasLayer(record.mapMarker)) {
+        Cluster.zoomToShowLayer(
+          record.mapMarker,
+          function() {
+            if (window.location.hash !== '#' + qid) return;
+            if (!record.popup.isOpen()) record.mapMarker.openPopup();
+          }
+        );
+      } else {
+        // Fallback instan jika marker sedang terlepas dari memori klaster
+        Map.setView([record.lat, record.lon], TILE_LAYER_MAX_ZOOM, { animate: false });
+        if (!record.popup.isOpen()) record.mapMarker.openPopup();
+      }
     }
-  } catch (error) {
-    console.warn("Interupsi animasi peta dicegat:", error);
   }
 }
-
+	
 function displayPanelContent(id) {
   // Hanya mengatur panel konten yang tampil
   document.querySelectorAll('.panel-content').forEach(content => {
