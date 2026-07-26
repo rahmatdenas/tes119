@@ -819,8 +819,6 @@ function activateMapMarker(qid) {
   try {
     Map.closePopup();
 
-    // PATCH TELAH DIHAPUS DARI SINI
-
     let countSameLocation = 0;
     currentFilteredRecords.forEach(r => {
       if (r.lat === record.lat && r.lon === record.lon) {
@@ -840,8 +838,7 @@ function activateMapMarker(qid) {
           }, 4500);
         }
       }, 350);
- } else {
-      // +++ KUNCI ANTI-CRASH: Validasi Hierarki Memori +++ Ditambahkan pada 26 Juli 2026
+    } else {
       if (Cluster.hasLayer(record.mapMarker)) {
         Cluster.zoomToShowLayer(
           record.mapMarker,
@@ -851,11 +848,13 @@ function activateMapMarker(qid) {
           }
         );
       } else {
-        // Fallback instan jika marker sedang terlepas dari memori klaster
         Map.setView([record.lat, record.lon], TILE_LAYER_MAX_ZOOM, { animate: false });
         if (!record.popup.isOpen()) record.mapMarker.openPopup();
       }
     }
+  } catch (error) {
+    // +++ BAGIAN INI YANG SEBELUMNYA HILANG +++
+    console.warn("Gagal mengaktifkan marker:", error);
   }
 }
 	
