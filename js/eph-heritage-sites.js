@@ -75,15 +75,17 @@ function loadPrimaryData() {
 
       populateImageAndWikipediaData();
     })
-    .catch(error => {
+ .catch(error => {
        if (error === 'ABORTED' || (error && error.name === 'AbortError')) {
          console.log("Pencarian dibatalkan atau diganti. Data kadaluarsa dibuang.");
          return; 
        }
 
+       // Turunkan saklar karena proses sudah berhenti
        isFetching = false;
        PrimaryDataIsLoaded = false;
 
+       // Tampilkan pesan gagal ke pengguna
        let indexList = document.getElementById('index-list');
        if (indexList) {         
          indexList.innerHTML = `
@@ -95,15 +97,8 @@ function loadPrimaryData() {
          `;
        }
   
-       loadingTimeoutToken = setTimeout(() => {
-         let loadingDesc = document.querySelector('#index-list p'); 
-         if (loadingDesc && isFetching) {
-           loadingDesc.innerHTML = `Data yang ditarik terlalu banyak. Harap menunggu, 3-5 menit...`;
-         }
-       }, 5000);
-       
        console.error("Data utama gagal dimuat. Cek koneksi atau server Wikidata.", error);
-    }); 
+    });
 }
 
 function doPreProcessing() {
