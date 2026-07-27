@@ -840,9 +840,18 @@ function activateMapMarker(qid) {
       }, 350);
     } else {
       if (Cluster.hasLayer(record.mapMarker)) {
+        
+        // [STORY-1] CCTV 1: Mulai terbang
+        const waktuMulai = performance.now();
+        console.log(`[STORY-1] 🎬 Detik ${Math.round(waktuMulai)}: Memulai zoomToShowLayer untuk arsip ${qid}...`);
+
         Cluster.zoomToShowLayer(
           record.mapMarker,
           function() {
+            // [STORY-2] CCTV 2: Berhasil mendarat tanpa interupsi
+            const waktuSelesai = performance.now();
+            console.log(`[STORY-2] 🏁 Detik ${Math.round(waktuSelesai)}: Animasi selesai. Membuka popup... (Lama perjalanan: ${Math.round(waktuSelesai - waktuMulai)}ms)`);
+
             if (window.location.hash !== '#' + qid) return;
             if (!record.popup.isOpen()) record.mapMarker.openPopup();
           }
@@ -853,8 +862,10 @@ function activateMapMarker(qid) {
       }
     }
   } catch (error) {
-    // +++ BAGIAN INI YANG SEBELUMNYA HILANG +++
-    console.warn("Gagal mengaktifkan marker:", error);
+    // [STORY-3] CCTV 3: Tangkap momen saat crash terjadi
+    const waktuCrash = performance.now();
+    console.error(`[STORY-3] 💥 Detik ${Math.round(waktuCrash)}: CRASH TERJADI SAAT TERBANG!`);
+    console.warn("Jejak error:", error);
   }
 }
 	
