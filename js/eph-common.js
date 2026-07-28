@@ -108,6 +108,69 @@ window.konfirmasiBerhenti = function() {
     });
 };
 
+window.konfirmasiBerhenti = function() {
+  tampilkanDialog("Anda yakin ingin mencukupkan penarikan? Data yang tertangkap sejauh ini akan segera disusun dan dirender ke peta.", "confirm", "Cukupkan Pencarian")
+    .then(yakin => {
+      if (yakin) {
+        window.hentikanPencarian = true; 
+        
+        let progressText = document.querySelector('#index-list p');
+        if (progressText) {
+           progressText.innerHTML = `<span style="color:#7b0d0c; font-weight:bold;">Memutus koneksi... Menyiapkan data yang terselamatkan.</span><br><br>Mohon tunggu sebentar, sistem sedang membangun koordinat peta...`;
+        }
+        let wadahTombol = document.getElementById('wadah-tombol-berhenti');
+        if (wadahTombol) wadahTombol.style.display = 'none';
+
+        if (typeof globalFetchController !== 'undefined') {
+          let oldController = globalFetchController;
+          globalFetchController = new AbortController(); 
+          oldController.abort(); 
+        }
+      }
+    });
+};
+
+// ========================================================
+// 🛡️ JARING PENGAMAN GLOBAL (REVISI - MENGGUNAKAN DIALOG KUSTOM)
+// ========================================================
+let sedangCrash = false; // Penjaga agar dialog tidak muncul berkali-kali jika eror beruntun
+
+window.addEventListener('error', function(event) {
+  // Abaikan eror dari ekstensi browser (seperti AdBlock dll)
+  if (event.filename && !event.filename.includes(window.location.hostname) && window.location.hostname !== '') {
+      return false; 
+  }
+  picuLayarCrash(event.message);
+});
+
+window.addEventListener('unhandledrejection', function(event) {
+  picuLayarCrash(event.reason);
+});
+
+function picuLayarCrash(pesanEror) {
+  if (sedangCrash) return;
+  sedangCrash = true;
+
+  // Sembunyikan pesan loading di sidebar jika sedang berjalan
+  let progressText = document.querySelector('#index-list p');
+  if (progressText) progressText.innerHTML = '';
+
+  // Rapikan pesan eror agar tidak terlalu panjang
+  let teksLog = pesanEror ? String(pesanEror).substring(0, 100) : 'Unknown Error';
+
+  let pesanDialog = `Maaf, terjadi kesalahan sistem yang tidak terduga saat merender peta atau data.<br><br>
+                     <span style="font-family: monospace; font-size: 11px; color: #888;">Log: ${teksLog}...</span><br><br>
+                     Klik <b>Tutup</b> untuk memuat ulang aplikasi dan memulihkan sistem.`;
+
+  // Panggil fungsi dialog kustom andalan Anda!
+  tampilkanDialog(pesanDialog, "alert", "Aplikasi Mengalami Kendala")
+    .then(() => {
+      // Hard reload! Kembali ke beranda murni saat user klik Tutup atau mengklik area hitam
+      window.location.href = window.location.pathname;
+    });
+}
+// ========================================================
+
 const ikonTetesanAir = L.divIcon({
   className: 'ikon-marker-ringan',
   html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-14 -13 412 538" width="30" height="40" style="overflow: visible;">
