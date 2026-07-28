@@ -929,6 +929,11 @@ function activateMapMarker(qid) {
     const waktuCrash = performance.now();
     console.error(`[STORY-3] 💥 Detik ${Math.round(waktuCrash)}: CRASH TERJADI SAAT TERBANG!`);
     console.warn("Jejak error:", error);
+	  // +++ TAMBAHKAN BARIS INI SAYANGKU +++
+    // Panggil satpam secara manual agar kotak dialog muncul!
+    if (typeof picuLayarCrash === 'function') {
+        picuLayarCrash(error); 
+    }
   }
 }
 	
